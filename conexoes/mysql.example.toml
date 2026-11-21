@@ -1,0 +1,8 @@
+[connection]
+type = "mysql"
+description = "Exemplo: MySQL / MariaDB"
+prefix = "My"
+
+[parameters]
+server = "mysql.exemplo.local:3306"
+database = "app"

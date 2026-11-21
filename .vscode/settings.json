@@ -1,0 +1,19 @@
+{
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "files.associations": {
+    "*.tmdl": "tmdl",
+    "*.pbir": "json",
+    "*.pbism": "json",
+    "*.pbip": "json",
+    ".platform": "json"
+  },
+  "[tmdl]": { "editor.insertSpaces": false, "editor.detectIndentation": false },
+  "files.exclude": { "**/.pbi/cache.abf": true, "**/__pycache__": true },
+  "search.exclude": { "**/documentos/legado/extracao/*.json": true },
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": { "*.pbip": "${capture}.Report, ${capture}.SemanticModel" },
+  "chat.promptFiles": true,
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true
+}

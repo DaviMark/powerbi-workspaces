@@ -1,0 +1,20 @@
+/// Tabela de medidas do modelo. Nenhuma coluna visível: só medidas, organizadas em pastas.
+/// A coluna oculta [Data Carga] registra o momento do último refresh (UTC-3h).
+table _Medidas
+
+	/// Texto pronto para o cabeçalho das páginas: "Atualizado em dd/mm/aaaa hh:mm".
+	measure 'Atualizado em' = "Atualizado em " & FORMAT ( MAX ( '_Medidas'[Data Carga] ), "dd/mm/yyyy hh:nn" )
+		displayFolder: _Sistema
+
+	column 'Data Carga'
+		dataType: dateTime
+		isHidden
+		formatString: General Date
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Data Carga]
+
+	partition _Medidas = calculated
+		mode: import
+		source = ROW ( "Data Carga", UTCNOW () + ( -3 / 24 ) )

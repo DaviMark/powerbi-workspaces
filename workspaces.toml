@@ -1,0 +1,43 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Power BI Workspaces — configuração global
+#  Lida pelo CLI (pbw) e pelas IAs (AGENTS.md). Sem senhas aqui.
+# ─────────────────────────────────────────────────────────────────────────────
+
+[project]
+name = "Power BI Workspaces"
+language = "pt-BR"        # idioma da documentação que a IA escreve
+culture = "pt-BR"         # cultura do modelo semântico (formatos de data/número)
+utc_offset_hours = -3     # fuso usado em "Atualizado em" (Brasília = -3)
+
+[structure]
+root = "dashboards"       # onde ficam os dashboards: dashboards/<empresa>/<área>/<subárea>/<dashboard>
+levels = ["empresa", "area", "subarea", "dashboard"]
+
+[defaults]
+connection = "sqlserver.example"   # perfil (conexoes/) usado quando `pbw novo` não recebe --conexao
+brand = "padrao"                   # identidade neutra (_sistema/identidade-padrao/) para empresas sem pasta em identidade-visual/
+
+[report]
+width = 1280
+height = 720
+documentation_page = "Documentação"   # página obrigatória em todo relatório
+
+[governance]
+max_tables = 12                         # tabelas vindas da fonte (importe o mínimo)
+max_pq_steps = 1                        # Power Query: só a etapa "Fonte"
+require_measure_description = true
+require_measure_format = true
+require_display_folder = true
+allow_bidirectional = false
+allow_calculated_columns_in_facts = false
+
+[security]
+commit_pbit = true                # 3-entrega/*.pbit (modelos sem dados) são versionados
+commit_legacy_pbit = false        # trabalho-da-ia/legado/original.pbit fica fora do Git (pode ter M com hosts)
+redact_extractions = true         # mascara hosts/IPs nas extrações de legado
+
+[ai]
+# Ordem de preferência das ferramentas que a IA deve usar para editar o modelo semântico.
+# "mcp" = Power BI Modeling MCP (Microsoft) quando disponível; "files" = editar TMDL/PBIR direto.
+model_editing = ["mcp", "files"]
+require_human_approval = ["design", "release"]   # gates obrigatórios (ver AGENTS.md)

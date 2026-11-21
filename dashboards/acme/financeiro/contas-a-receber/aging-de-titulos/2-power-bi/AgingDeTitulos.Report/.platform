@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Aging de Títulos"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "ee4dd9c7-c5dd-499a-b7b9-ea14c96cff0b"
+  }
+}

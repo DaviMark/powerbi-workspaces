@@ -1,0 +1,11 @@
+---
+description: Power BI Workspaces — governed Power BI development (always on)
+alwaysApply: true
+---
+Read and follow `AGENTS.md` at the repository root before any change. It is the single source of truth
+for structure, workflows, gates and Definition of Done. Load the `powerbi-architect` skill for any
+Power BI work. Users are data analysts: talk business language and run the `pbw` CLI yourself.
+Every dashboard keeps one `2-power-bi/<Nome>.pbip` at the top of its folder that must open in Power BI Desktop after
+every change. Never commit data or secrets. Finish with `pbw validar` = 0 errors.
+
+At the start of EVERY session, before anything else (even if the first message is a request), run `python _sistema/pbw.py boas-vindas --verificar`; if it prints `PERGUNTAR`, your first reply is exactly: "Quer que eu te explique como o repositório funciona primeiro? Comandos, o que fica em cada pasta e tudo mais?" (details: `AGENTS.md › Session start`).

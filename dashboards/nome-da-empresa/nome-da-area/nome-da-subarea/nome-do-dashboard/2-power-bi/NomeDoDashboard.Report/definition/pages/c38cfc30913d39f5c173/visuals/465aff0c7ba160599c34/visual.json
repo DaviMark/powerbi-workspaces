@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "465aff0c7ba160599c34",
+  "position": {
+    "x": 220,
+    "y": 702,
+    "z": 1007,
+    "height": 14,
+    "width": 640,
+    "tabOrder": 1007
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "PROTÓTIPO · sem dados · gerado de trabalho-da-ia/desenho.md por `pbw prototipo`. A IA troca cada caixa cinza pelo visual real.",
+                    "textStyle": {
+                      "fontSize": "8pt",
+                      "color": "#5B6470"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

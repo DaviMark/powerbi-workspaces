@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "9ca12d43b1eca466c6bd",
+  "position": {
+    "x": 240,
+    "y": 106,
+    "z": 1001,
+    "height": 25,
+    "width": 731,
+    "tabOrder": 1001
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Métricas, regras de negócio e cargas deste relatório. Gerado automaticamente do modelo.",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#5B6470"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

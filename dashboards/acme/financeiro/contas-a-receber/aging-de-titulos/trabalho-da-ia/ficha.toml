@@ -1,0 +1,40 @@
+# Ficha do dashboard — lido pelo CLI, pela IA e pelo catálogo. Sem segredos aqui.
+
+[dashboard]
+id = "acme.financeiro.contas-a-receber.aging-de-titulos"                       # = caminho da pasta (empresa.área.subárea.dashboard)
+name = "Aging de Títulos"
+description = "Priorizar a cobrança: quanto há a receber, quanto venceu e há quanto tempo."                    # 1 frase: que decisão este dashboard apoia?
+status = "review"                    # draft | development | review | production | deprecated
+version = "1.0.0"                   # SemVer: MAJOR quebra uso, MINOR nova análise, PATCH ajuste
+created = "2026-11-21"
+example = true                      # dashboard de exemplo do repositório: não conta como dashboard seu
+origin = "new"               # new | refactor
+
+[ownership]
+company = "Acme"
+area = "Financeiro"
+subarea = "Contas a Receber"
+business_owner = "Coordenação de Contas a Receber (fictício)"                 # quem responde pelas regras de negócio (obrigatório em review/production)
+technical_owner = "Time de BI (fictício)"
+audience = "Coordenação de cobrança (diário) e diretoria financeira (mensal)"                       # quem usa: diretoria, analistas, operação...
+
+[data]
+connection = "acme-erp"       # perfil em conexoes/  →  pbw conexoes
+storage_mode = "import"             # import | directquery | composite
+refresh = "diário 06:00"                        # ex.: "diário 06:00", "a cada 1h em horário comercial"
+incremental_refresh = false
+
+[security]
+classification = "internal"         # public | internal | confidential | restricted
+contains_pii = false                # dados pessoais (LGPD)? Se sim, documente base legal e mascaramento
+rls = false                         # Row-Level Security
+rls_rule = ""                       # ex.: "gestor vê apenas a própria filial"
+
+[design]
+brand = "acme"                 # identidade visual = a da empresa (identidade-visual/acme/), automática
+pages = ["Visão Geral", "Documentação"]                          # preenchido pela IA a partir de desenho.md
+custom_visuals = []                 # só com justificativa em desenho.md (Decisões)
+
+[publish]
+workspace = ""                      # workspace do Power BI Service / Fabric
+app = ""

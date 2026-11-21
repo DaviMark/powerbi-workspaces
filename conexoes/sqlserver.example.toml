@@ -1,0 +1,11 @@
+# Perfil de EXEMPLO — copie para <nome>.toml (ou <nome>.local.toml para valores só seus).
+# NUNCA coloque usuário/senha aqui: o Power BI guarda credenciais no Desktop/Service, não no arquivo.
+
+[connection]
+type = "sqlserver"          # pbw conexoes --types
+description = "Exemplo: SQL Server do ERP (somente leitura, schema bi)"
+prefix = "Erp"              # vira os parâmetros Erp_Server e Erp_Database no Power BI
+
+[parameters]
+server = "sql-erp.exemplo.local"
+database = "ERP"

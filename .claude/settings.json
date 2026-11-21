@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python _sistema/pbw.py boas-vindas --hook",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

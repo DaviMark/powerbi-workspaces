@@ -1,0 +1,8 @@
+[connection]
+type = "postgresql"
+description = "Exemplo: PostgreSQL"
+prefix = "Pg"
+
+[parameters]
+server = "pg.exemplo.local:5432"
+database = "analytics"

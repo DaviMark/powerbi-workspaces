@@ -1,0 +1,17 @@
+name: Bug
+description: Algo no framework/CLI não funciona como deveria
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Não cole dados, nomes de servidores internos ou segredos. Use exemplos fictícios."
+  - type: textarea
+    id: what
+    attributes: { label: O que aconteceu?, description: Comando executado e saída (sem dados sensíveis). }
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes: { label: O que você esperava? }
+  - type: input
+    id: env
+    attributes: { label: Ambiente, placeholder: "Windows 11 · Python 3.12 · Power BI Desktop 2.14x (mês/ano) · Copilot/Claude/Cursor" }

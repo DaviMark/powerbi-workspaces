@@ -1,0 +1,30 @@
+# Normaliza finais de linha (PBIP/TMDL são texto; diffs limpos entre Windows e Mac/Linux)
+* text=auto eol=lf
+*.tmdl   text eol=lf diff
+*.json   text eol=lf
+*.pbir   text eol=lf
+*.pbism  text eol=lf
+*.pbip   text eol=lf
+*.sql    text eol=lf
+*.md     text eol=lf
+*.ps1    text eol=crlf
+
+# Binários
+*.pbit   binary
+*.pbiviz binary
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.pdf    binary
+*.pptx   binary
+*.xlsx   binary
+*.ttf    binary
+*.woff2  binary
+
+# GitHub: não contar temas/base como código; esconder gerados no diff de PR
+**/StaticResources/SharedResources/BaseThemes/*.json linguist-generated=true
+analytics/CATALOG.md   linguist-generated=true
+analytics/catalog.json linguist-generated=true
+**/docs/dicionario.md  linguist-generated=true
+**/legacy/extraction/** linguist-generated=true

@@ -1,0 +1,89 @@
+/// Parcelas de títulos a receber (abertas e liquidadas), sem cancelados.
+/// Grão: 1 linha por parcela · Fonte: trabalho-da-ia/sql/Fato Titulos.sql · Conexão: acme-erp
+table 'Fato Titulos'
+
+	column id_parcela
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: id_parcela
+
+	column id_cliente
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: id_cliente
+
+	column id_filial
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: id_filial
+
+	column 'Data Emissão'
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		summarizeBy: none
+		sourceColumn: Data Emissão
+
+	column 'Data Vencimento'
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		summarizeBy: none
+		sourceColumn: Data Vencimento
+
+	column 'Data Pagamento'
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		summarizeBy: none
+		sourceColumn: Data Pagamento
+
+	column 'Valor Parcela'
+		dataType: decimal
+		isHidden
+		formatString: \R\$ #,0.00
+		summarizeBy: none
+		sourceColumn: Valor Parcela
+
+	column 'Valor Pago'
+		dataType: decimal
+		isHidden
+		formatString: \R\$ #,0.00
+		summarizeBy: none
+		sourceColumn: Valor Pago
+
+	column 'Saldo Aberto'
+		dataType: decimal
+		isHidden
+		formatString: \R\$ #,0.00
+		summarizeBy: none
+		sourceColumn: Saldo Aberto
+
+	column 'Dias Atraso'
+		dataType: int64
+		isHidden
+		formatString: 0
+		summarizeBy: none
+		sourceColumn: Dias Atraso
+
+	/// Faixa de atraso na data da carga: A vencer, 1–30 … > 180, Liquidado.
+	column 'Faixa Atraso'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Faixa Atraso
+		sortByColumn: 'Faixa Ordem'
+
+	column 'Faixa Ordem'
+		dataType: int64
+		isHidden
+		formatString: 0
+		summarizeBy: none
+		sourceColumn: Faixa Ordem
+
+	partition 'Fato Titulos' = m
+		mode: import
+		source =
+				let
+				    Fonte = Value.NativeQuery(Sql.Database(Erp_Server, Erp_Database), "SELECT#(lf)    t.id_parcela                                   AS id_parcela,#(lf)    t.id_cliente                                   AS id_cliente,#(lf)    t.id_filial                                    AS id_filial,#(lf)    CAST(t.dt_emissao    AS date)                  AS [Data Emissão],#(lf)    CAST(t.dt_vencimento AS date)                  AS [Data Vencimento],#(lf)    CAST(t.dt_pagamento  AS date)                  AS [Data Pagamento],#(lf)    CAST(t.vl_parcela AS decimal(18, 2))           AS [Valor Parcela],#(lf)    CAST(t.vl_pago    AS decimal(18, 2))           AS [Valor Pago],#(lf)    CAST(t.vl_parcela - t.vl_pago AS decimal(18, 2)) AS [Saldo Aberto],#(lf)    CASE WHEN t.dt_pagamento IS NULL#(lf)         THEN DATEDIFF(day, t.dt_vencimento, CAST(GETDATE() AS date)) ELSE 0 END AS [Dias Atraso],#(lf)    CASE#(lf)        WHEN t.dt_pagamento IS NOT NULL                                   THEN 'Liquidado'#(lf)        WHEN DATEDIFF(day, t.dt_vencimento, CAST(GETDATE() AS date)) <= 0  THEN 'A vencer'#(lf)        WHEN DATEDIFF(day, t.dt_vencimento, CAST(GETDATE() AS date)) <= 30 THEN '1–30'#(lf)        WHEN DATEDIFF(day, t.dt_vencimento, CAST(GETDATE() AS date)) <= 60 THEN '31–60'#(lf)        WHEN DATEDIFF(day, t.dt_vencimento, CAST(GETDATE() AS date)) <= 90 THEN '61–90'#(lf)        WHEN DATEDIFF(day, t.dt_vencimento, CAST(GETDATE() AS date)) <= 180 THEN '91–180'#(lf)        ELSE '> 180'#(lf)    END                                            AS [Faixa Atraso],#(lf)    CASE#(lf)        WHEN t.dt_pagamento IS NOT NULL                                   THEN 9#(lf)        WHEN DATEDIFF(day, t.dt_vencimento, CAST(GETDATE() AS date)) <= 0  THEN 0#(lf)        WHEN DATEDIFF(day, t.dt_vencimento, CAST(GETDATE() AS date)) <= 30 THEN 1#(lf)        WHEN DATEDIFF(day, t.dt_vencimento, CAST(GETDATE() AS date)) <= 60 THEN 2#(lf)        WHEN DATEDIFF(day, t.dt_vencimento, CAST(GETDATE() AS date)) <= 90 THEN 3#(lf)        WHEN DATEDIFF(day, t.dt_vencimento, CAST(GETDATE() AS date)) <= 180 THEN 4#(lf)        ELSE 5#(lf)    END                                            AS [Faixa Ordem]#(lf)FROM bi.vw_titulos_receber AS t#(lf)WHERE t.status <> 'C'", null, [EnableFolding = true])
+				in
+				    Fonte

@@ -1,0 +1,7 @@
+[connection]
+type = "saphana"
+description = "Exemplo: SAP HANA (views calculadas para BI)"
+prefix = "Hana"             # parâmetro Hana_Server
+
+[parameters]
+server = "hana.exemplo.local:30015"

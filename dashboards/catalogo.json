@@ -1,0 +1,17 @@
+[
+  {
+    "id": "acme.financeiro.contas-a-receber.aging-de-titulos",
+    "name": "Aging de Títulos",
+    "status": "review",
+    "version": "1.0.0",
+    "path": "dashboards/acme/financeiro/contas-a-receber/aging-de-titulos",
+    "company": "Acme",
+    "area": "Financeiro",
+    "subarea": "Contas a Receber",
+    "owner": "Coordenação de Contas a Receber (fictício)",
+    "connection": "acme-erp",
+    "classification": "internal",
+    "tables": 3,
+    "measures": 9
+  }
+]

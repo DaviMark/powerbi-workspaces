@@ -1,0 +1,8 @@
+# Exemplo de revisão por área. Troque pelos usuários/times da sua organização.
+# Toda mudança em um dashboard pede revisão do dono da área.
+#
+# /dashboards/acme/financeiro/   @acme/financeiro-bi
+# /dashboards/acme/comercial/    @acme/comercial-bi
+# /identidade-visual/            @acme/bi-platform
+# /conexoes/                     @acme/bi-platform
+# /_sistema/                     @acme/bi-platform

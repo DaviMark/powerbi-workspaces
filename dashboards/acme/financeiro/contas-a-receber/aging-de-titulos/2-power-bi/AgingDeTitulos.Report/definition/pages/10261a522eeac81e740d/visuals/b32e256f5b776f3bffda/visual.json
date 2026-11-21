@@ -1,0 +1,102 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "b32e256f5b776f3bffda",
+  "position": {
+    "x": 240,
+    "y": 138,
+    "z": 1002,
+    "height": 540,
+    "width": 648,
+    "tabOrder": 1002
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Documentacao"
+                    }
+                  },
+                  "Property": "Pasta"
+                }
+              },
+              "queryRef": "_Documentacao.Pasta",
+              "nativeQueryRef": "Pasta"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Documentacao"
+                    }
+                  },
+                  "Property": "Medida"
+                }
+              },
+              "queryRef": "_Documentacao.Medida",
+              "nativeQueryRef": "Medida"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Documentacao"
+                    }
+                  },
+                  "Property": "Descrição"
+                }
+              },
+              "queryRef": "_Documentacao.Descrição",
+              "nativeQueryRef": "Descrição"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Documentacao"
+                    }
+                  },
+                  "Property": "Expressão DAX"
+                }
+              },
+              "queryRef": "_Documentacao.Expressão DAX",
+              "nativeQueryRef": "Expressão DAX"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Métricas'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

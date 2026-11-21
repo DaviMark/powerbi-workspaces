@@ -1,0 +1,102 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "810de45d5cc208ad6e76",
+  "position": {
+    "x": 891,
+    "y": 136,
+    "z": 1003,
+    "height": 564,
+    "width": 369,
+    "tabOrder": 1003
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Cargas"
+                    }
+                  },
+                  "Property": "Tabela"
+                }
+              },
+              "queryRef": "_Cargas.Tabela",
+              "nativeQueryRef": "Tabela"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Cargas"
+                    }
+                  },
+                  "Property": "Descrição"
+                }
+              },
+              "queryRef": "_Cargas.Descrição",
+              "nativeQueryRef": "Descrição"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Cargas"
+                    }
+                  },
+                  "Property": "Armazenamento"
+                }
+              },
+              "queryRef": "_Cargas.Armazenamento",
+              "nativeQueryRef": "Armazenamento"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Cargas"
+                    }
+                  },
+                  "Property": "Última Carga"
+                }
+              },
+              "queryRef": "_Cargas.Última Carga",
+              "nativeQueryRef": "Última Carga"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Cargas'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

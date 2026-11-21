@@ -1,0 +1,27 @@
+/// Filiais e regionais.
+/// Grão: 1 linha por filial · Fonte: trabalho-da-ia/sql/Dim Filial.sql · Conexão: acme-erp
+table 'Dim Filial'
+
+	column id_filial
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: id_filial
+
+	column Filial
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Filial
+
+	column Regional
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Regional
+
+	partition 'Dim Filial' = m
+		mode: import
+		source =
+				let
+				    Fonte = Value.NativeQuery(Sql.Database(Erp_Server, Erp_Database), "SELECT#(lf)    f.id_filial AS id_filial,#(lf)    f.nome      AS [Filial],#(lf)    f.regional  AS [Regional]#(lf)FROM bi.vw_filiais AS f", null, [EnableFolding = true])
+				in
+				    Fonte

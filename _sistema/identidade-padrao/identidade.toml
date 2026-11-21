@@ -1,0 +1,53 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Identidade visual (tokens). Fonte da verdade para tema, layout e visuais.
+#  Copie esta pasta para identidade-visual/<slug-da-empresa>/ e ajuste.
+#  `pbw identidade <slug>` gera tema/<slug>-theme.json e aplica em todos os dashboards da empresa.
+# ─────────────────────────────────────────────────────────────────────────────
+
+[brand]
+name = "Example"
+slug = "example"
+voice = "sóbrio, direto, sem jargão"          # tom dos títulos e textos
+
+[colors]
+primary      = "#1F3A5F"   # ação, destaque principal, série principal
+text         = "#1B1F24"
+text_muted   = "#5B6470"
+text_subtle  = "#8A929C"
+canvas       = "#F5F6F8"   # fundo da página
+surface      = "#FFFFFF"   # fundo dos visuais
+surface_alt  = "#EEF1F4"
+border       = "#E3E6EA"
+positive     = "#1E8E3E"
+negative     = "#D93025"
+warning      = "#F29900"
+neutral      = "#C9CED4"
+# Barra lateral do relatório (moldura de aplicativo — guias/padrao-visual.md)
+sidebar        = "#1F2328"   # fundo da barra lateral (a cor mais escura da marca)
+sidebar_text   = "#FFFFFF"   # nome da empresa e página ativa
+sidebar_muted  = "#A7ADB7"   # páginas inativas e rótulos de seção
+sidebar_active = "#343A42"   # destaque da página ativa
+# Escala da marca, do mais escuro ao mais claro: séries de um mesmo assunto, mapas de calor, destaque × contexto.
+ramp = ["#1F2328", "#3B4A5C", "#6B7F96", "#AEBBCB", "#E2E8EF"]
+# Paleta categórica: ordem importa. 1ª cor = série principal. Máx. 6 categorias por visual.
+data = ["#1F3A5F", "#3E7CB1", "#7FB3D5", "#C9CED4", "#F29900", "#8A929C"]
+
+[typography]
+font_family = "Segoe UI"            # fontes seguras no Power BI: Segoe UI, Arial, DIN, Calibri...
+font_family_semibold = "Segoe UI Semibold"
+kpi_size = 28
+title_size = 12
+header_size = 11
+body_size = 10
+
+[layout]
+canvas_width = 1280
+canvas_height = 720
+grid = 8            # tudo em múltiplos de 8 px
+margin = 20
+gutter = 16
+radius = 12          # cantos dos cartões
+visual_padding = 16
+
+[logo]
+primary = "logos/logo.svg"          # usado no cabeçalho (opcional)

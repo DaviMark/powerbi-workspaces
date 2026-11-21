@@ -1,0 +1,58 @@
+/// Catálogo vivo das métricas (INFO.VIEW.MEASURES). Recalculado a cada atualização.
+/// Alimenta a página 'Documentação'. Descrições vêm do /// de cada medida no TMDL.
+table _Documentacao
+
+	column Tabela
+		dataType: string
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Tabela]
+
+	column Pasta
+		dataType: string
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Pasta]
+
+	column Medida
+		dataType: string
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Medida]
+
+	column 'Descrição'
+		dataType: string
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Descrição]
+
+	column 'Expressão DAX'
+		dataType: string
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Expressão DAX]
+
+	column Formato
+		dataType: string
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Formato]
+
+	partition _Documentacao = calculated
+		mode: import
+		source =
+				SELECTCOLUMNS (
+				    FILTER ( INFO.VIEW.MEASURES (), NOT [IsHidden] ),
+				    "Tabela", [Table],
+				    "Pasta", [DisplayFolder],
+				    "Medida", [Name],
+				    "Descrição", [Description],
+				    "Expressão DAX", [Expression],
+				    "Formato", [FormatString]
+				)

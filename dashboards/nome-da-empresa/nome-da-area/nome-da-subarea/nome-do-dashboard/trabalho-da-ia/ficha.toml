@@ -1,0 +1,39 @@
+# Ficha do dashboard — lida pelo CLI, pela IA e pelo catálogo. Sem senhas aqui.
+
+[dashboard]
+id = "nome-da-empresa.nome-da-area.nome-da-subarea.nome-do-dashboard"                       # = caminho da pasta (empresa.área.subárea.dashboard)
+name = "Nome do Dashboard"
+description = ""                    # 1 frase: que decisão este dashboard apoia?
+status = "draft"                    # draft (rascunho) | development | review (revisão) | production | deprecated
+version = "0.1.0"                   # 1.0.0 = primeira entrega; 1.1.0 = nova análise; 1.0.1 = ajuste
+created = "2026-11-21"
+origin = "new"               # new (novo) | refactor (refatorado de um legado)
+
+[ownership]
+company = "Nome da Empresa"
+area = "Nome da Area"
+subarea = "Nome da Subarea"
+business_owner = ""                 # quem responde pelas regras de negócio (obrigatório em review/production)
+technical_owner = ""
+audience = ""                       # quem usa: diretoria, analistas, operação...
+
+[data]
+connection = "sqlserver.example"       # perfil em conexoes/  →  pbw conexoes
+storage_mode = "import"             # import | directquery | composite
+refresh = ""                        # ex.: "diário 06:00", "a cada 1h em horário comercial"
+incremental_refresh = false
+
+[security]
+classification = "internal"         # public | internal | confidential | restricted
+contains_pii = false                # dados pessoais (LGPD)? Se sim, documente base legal e mascaramento
+rls = false                         # Row-Level Security (cada pessoa vê só o que pode)
+rls_rule = ""                       # ex.: "gestor vê apenas a própria filial"
+
+[design]
+brand = "nome-da-empresa"                 # identidade visual = a da empresa (identidade-visual/<empresa>/), automática
+pages = []                          # preenchido pela IA a partir de desenho.md
+custom_visuals = []                 # só com justificativa em desenho.md (Decisões)
+
+[publish]
+workspace = ""                      # workspace do Power BI Service / Fabric
+app = ""

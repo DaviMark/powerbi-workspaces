@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "analysis-services.TMDL",
+    "ms-python.python",
+    "mtxr.sqltools",
+    "bierner.markdown-mermaid",
+    "editorconfig.editorconfig",
+    "redhat.vscode-yaml",
+    "tamasfe.even-better-toml"
+  ]
+}

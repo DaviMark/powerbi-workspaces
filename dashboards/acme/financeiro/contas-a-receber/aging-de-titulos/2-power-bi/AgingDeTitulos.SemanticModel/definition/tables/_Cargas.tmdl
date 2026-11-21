@@ -1,0 +1,50 @@
+/// Cargas do modelo: tabelas vindas da fonte, modo de armazenamento e último refresh.
+/// A descrição de cada tabela (///) deve trazer: fonte, arquivo SQL, grão e conexão.
+table _Cargas
+
+	column Tabela
+		dataType: string
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Tabela]
+
+	column 'Descrição'
+		dataType: string
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Descrição]
+
+	column Armazenamento
+		dataType: string
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Armazenamento]
+
+	column 'Última Carga'
+		dataType: dateTime
+		formatString: dd/mm/yyyy hh:nn
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Última Carga]
+
+	partition _Cargas = calculated
+		mode: import
+		source =
+				VAR _carga = MAX ( '_Medidas'[Data Carga] )
+				RETURN
+				    ADDCOLUMNS (
+				        SELECTCOLUMNS (
+				            FILTER (
+				                INFO.VIEW.TABLES (),
+				                ISBLANK ( [Expression] ) && LEFT ( [Name], 1 ) <> "_"
+				            ),
+				            "Tabela", [Name],
+				            "Descrição", [Description],
+				            "Armazenamento", [StorageMode]
+				        ),
+				        "Última Carga", _carga
+				    )

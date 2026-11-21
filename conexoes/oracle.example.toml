@@ -1,0 +1,7 @@
+[connection]
+type = "oracle"
+description = "Exemplo: Oracle Database"
+prefix = "Ora"
+
+[parameters]
+server = "oracle.exemplo.local:1521/ORCL"

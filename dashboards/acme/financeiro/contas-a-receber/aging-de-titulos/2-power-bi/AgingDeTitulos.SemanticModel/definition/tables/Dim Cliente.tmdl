@@ -1,0 +1,32 @@
+/// Clientes com pelo menos um título.
+/// Grão: 1 linha por cliente · Fonte: trabalho-da-ia/sql/Dim Cliente.sql · Conexão: acme-erp
+table 'Dim Cliente'
+
+	column id_cliente
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: id_cliente
+
+	column Cliente
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Cliente
+
+	column Segmento
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Segmento
+
+	column UF
+		dataType: string
+		summarizeBy: none
+		sourceColumn: UF
+
+	partition 'Dim Cliente' = m
+		mode: import
+		source =
+				let
+				    Fonte = Value.NativeQuery(Sql.Database(Erp_Server, Erp_Database), "SELECT#(lf)    c.id_cliente    AS id_cliente,#(lf)    c.nome_fantasia AS [Cliente],#(lf)    c.segmento      AS [Segmento],#(lf)    c.uf            AS [UF]#(lf)FROM bi.vw_clientes AS c#(lf)WHERE EXISTS (SELECT 1 FROM bi.vw_titulos_receber t WHERE t.id_cliente = c.id_cliente)", null, [EnableFolding = true])
+				in
+				    Fonte

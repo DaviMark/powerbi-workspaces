@@ -1,0 +1,9 @@
+[connection]
+type = "snowflake"
+description = "Exemplo: Snowflake"
+prefix = "Sf"
+
+[parameters]
+server = "minhaconta.snowflakecomputing.com"
+warehouse = "BI_WH"
+database = "ANALYTICS"

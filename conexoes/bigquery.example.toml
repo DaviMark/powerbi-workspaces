@@ -1,0 +1,7 @@
+[connection]
+type = "bigquery"
+description = "Exemplo: Google BigQuery (GCP)"
+prefix = "Gcp"              # parâmetro Gcp_BillingProject
+
+[parameters]
+billing_project = "meu-projeto-gcp"

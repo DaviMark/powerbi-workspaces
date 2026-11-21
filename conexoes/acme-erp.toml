@@ -1,0 +1,11 @@
+# Perfil usado pelo dashboard de exemplo (empresa fictícia Acme Logística).
+# Endereços reais da sua empresa: prefira <nome>.local.toml (ignorado pelo Git).
+
+[connection]
+type = "sqlserver"
+description = "ERP da Acme (SQL Server, somente leitura, schema bi)"
+prefix = "Erp"
+
+[parameters]
+server = "sql-erp.acme.example"
+database = "ERP"

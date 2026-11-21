@@ -1,0 +1,9 @@
+[connection]
+type = "databricks"
+description = "Exemplo: Databricks SQL Warehouse"
+prefix = "Dbx"
+
+[parameters]
+host = "adb-0000000000000000.0.azuredatabricks.net"
+http_path = "/sql/1.0/warehouses/0000000000000000"
+catalog = "main"

@@ -1,0 +1,11 @@
+name: Ideia
+description: Sugira um recurso (conector, regra de governança, workflow de IA...)
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes: { label: Qual problema isso resolve? }
+    validations: { required: true }
+  - type: textarea
+    id: idea
+    attributes: { label: Como você imagina? }

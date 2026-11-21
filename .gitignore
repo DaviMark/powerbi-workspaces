@@ -1,0 +1,51 @@
+# ─────────────────────────────────────────────────────────────
+#  Power BI Workspaces — o que NUNCA entra no Git
+# ─────────────────────────────────────────────────────────────
+
+# Power BI: dados, cache e configurações locais
+*.pbix
+*.abf
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+**/.pbi/unappliedChanges.json
+
+# Conexões e segredos locais
+conexoes/*.local.toml
+.env
+.env.*
+!.env.example
+*.pem
+*.pfx
+*.p12
+*.key
+
+# Legado: o .pbit original pode conter M com hosts e tabelas "Inserir dados".
+# Para versionar, mude security.commit_legacy_pbit e remova a linha abaixo.
+dashboards/**/documentos/legado/original.pbit
+dashboards/**/documentos/legado/original.pbix
+
+# Pasta de refatoração: arquivos ficam só até `pbw refatorar` movê-los
+refatorar/**
+!refatorar/**/
+!refatorar/**/.gitkeep
+!refatorar/LEIA-ME.md
+
+# Custom visuals (código-fonte entra; dependências e build não)
+**/visuais-customizados/*/node_modules/
+**/visuais-customizados/*/.tmp/
+**/visuais-customizados/*/dist/*.pbiviz.tmp
+**/visuais-customizados/*/webpack.statistics.*.html
+
+# Grafo de conhecimento gerado pela skill powerbi-architect (regerado por hooks)
+powerbi-graph/
+
+# Python / SO / editores
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.idea/

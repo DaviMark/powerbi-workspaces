@@ -1,0 +1,13 @@
+/// Servidor (host[,porta] ou endpoint) — perfil de conexão 'acme-erp' (SQL Server · Azure SQL · Fabric Warehouse/SQL endpoint · Synapse).
+/// Gerado por `pbw conectar`. Altere em conexoes/acme-erp.toml, não aqui.
+expression Erp_Server = "sql-erp.acme.example" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	queryGroup: Parametros
+
+	annotation PBI_ResultType = Text
+
+/// Banco de dados — perfil de conexão 'acme-erp' (SQL Server · Azure SQL · Fabric Warehouse/SQL endpoint · Synapse).
+/// Gerado por `pbw conectar`. Altere em conexoes/acme-erp.toml, não aqui.
+expression Erp_Database = "ERP" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	queryGroup: Parametros
+
+	annotation PBI_ResultType = Text
