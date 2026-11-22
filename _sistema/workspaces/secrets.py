@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import pbit as pbit_mod
-from .util import is_text_file, rel
+from .util import LONG_PREFIX, is_text_file, rel
 
 PATTERNS: list[tuple[str, str, re.Pattern[str]]] = [
     ("SEC001", "Senha em string de conexão", re.compile(r"(?i)\b(?:password|pwd)\s*=\s*[^;\"'\s{}<>$]{3,}")),
@@ -54,7 +54,9 @@ def tracked_files(root: Path, staged: bool = False) -> list[Path]:
     cmd = ["git", "diff", "--cached", "--name-only", "--diff-filter=ACMR"] if staged else \
         ["git", "ls-files", "--cached", "--others", "--exclude-standard"]
     try:
-        out = subprocess.run(cmd, cwd=root, capture_output=True, text=True, check=True).stdout
+        # git runs from the plain path: a \\?\ (long path) working directory is not accepted by every Windows API
+        out = subprocess.run(cmd, cwd=str(root).replace(LONG_PREFIX, "", 1), capture_output=True, text=True,
+                             check=True).stdout
         return [root / line for line in out.splitlines() if line.strip()]
     except (OSError, subprocess.CalledProcessError):
         files = []
