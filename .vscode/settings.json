@@ -11,7 +11,7 @@
   },
   "[tmdl]": { "editor.insertSpaces": false, "editor.detectIndentation": false },
   "files.exclude": { "**/.pbi/cache.abf": true, "**/__pycache__": true },
-  "search.exclude": { "**/documentos/legado/extracao/*.json": true },
+  "search.exclude": { "**/trabalho-da-ia/legado/extracao/*.json": true },
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": { "*.pbip": "${capture}.Report, ${capture}.SemanticModel" },
   "chat.promptFiles": true,

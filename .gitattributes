@@ -24,7 +24,10 @@
 
 # GitHub: não contar temas/base como código; esconder gerados no diff de PR
 **/StaticResources/SharedResources/BaseThemes/*.json linguist-generated=true
-analytics/CATALOG.md   linguist-generated=true
-analytics/catalog.json linguist-generated=true
-**/docs/dicionario.md  linguist-generated=true
-**/legacy/extraction/** linguist-generated=true
+dashboards/CATALOGO.md                    linguist-generated=true
+dashboards/catalogo.json                  linguist-generated=true
+**/trabalho-da-ia/dicionario.md           linguist-generated=true
+**/trabalho-da-ia/legado/extracao/**      linguist-generated=true
+**/StaticResources/RegisteredResources/*-theme.json linguist-generated=true
+**/identidade-visual/*/trabalho-da-ia/tema/*.json   linguist-generated=true
+_sistema/identidade-padrao/tema/*.json    linguist-generated=true

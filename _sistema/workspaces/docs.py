@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import datetime as dt
 import json
 import re
 from collections import defaultdict
@@ -105,7 +104,7 @@ def catalog(root: Path) -> Path:
     badge = {"draft": "rascunho", "development": "desenvolvimento", "review": "revisão",
              "production": "produção", "deprecated": "descontinuado"}
     lines = ["<!-- GERADO por `pbw catalogo`. Não edite à mão. -->", "", "# Catálogo de dashboards", "",
-             f"Atualizado em {dt.date.today().isoformat()} · **{len(rows)}** dashboard(s)", ""]
+             f"**{len(rows)}** dashboard(s)", ""]
     groups: dict[str, list[dict]] = defaultdict(list)
     for r in rows:
         groups[f"{r['company']} › {r['area']} › {r['subarea']}"].append(r)

@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python _sistema/pbw.py boas-vindas --hook",
+            "command": "python3 _sistema/pbw.py boas-vindas --hook || python _sistema/pbw.py boas-vindas --hook",
             "timeout": 30
           }
         ]
