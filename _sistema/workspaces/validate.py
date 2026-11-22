@@ -8,6 +8,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from . import caminhos
 from . import secrets as sec_mod
 from . import tmdl
 from .connectors import list_profiles
@@ -246,6 +247,19 @@ def validate_dashboard(root: Path, dash: Path, cfg: dict) -> list[Issue]:
         if rel_.from_cardinality == "many" and rel_.to_cardinality == "many":
             add(WARN, "PBW016", f"relacionamento muitos-para-muitos {rel_.from_column} ↔ {rel_.to_column}.")
 
+    # Report: page/visual names and the model fields each visual uses
+    issues.extend(Issue(lvl, rule, rel(p_, root), msg) for lvl, rule, p_, msg in _report_checks(report, model))
+
+    # Windows: Power BI Desktop does not read paths with 260+ characters
+    medida = caminhos.medir(root, dash)
+    if medida and medida.excede:
+        onde = ("nesta pasta do repositório" if medida.raiz_real
+                else f"mesmo com o repositório numa pasta curta ({len(caminhos.RAIZ_TIPICA)} caracteres)")
+        add(WARN, "PBW025", f"o maior caminho do projeto chega a {medida.tamanho} caracteres {onde} "
+                            f"(limite seguro: {caminhos.LIMITE - 1}; o Windows corta em {caminhos.LIMITE_WINDOWS}) "
+                            "e o Power BI Desktop não abre direto. " + caminhos.conselho()
+                            + ("" if medida.raiz_real else " Encurte os nomes das pastas do dashboard."))
+
     # Report: documentation page
     doc_page = rp.get("documentation_page", "Documentação")
     page_names = []
@@ -265,6 +279,62 @@ def validate_dashboard(root: Path, dash: Path, cfg: dict) -> list[Issue]:
         if not dec.exists() or "pbiviz" not in dec.read_text(encoding="utf-8").lower():
             add(WARN, "PBW017", f"visual customizado sem decisão registrada ({DESIGN}: por que nenhum visual nativo atende).")
     return issues
+
+
+def _field_refs(node: object) -> list[tuple[str, str, str]]:
+    """(kind, table, field) for every Column/Measure reference bound to a model table (SourceRef.Entity)."""
+    out: list[tuple[str, str, str]] = []
+    if isinstance(node, dict):
+        for kind in ("Column", "Measure"):
+            ref = node.get(kind)
+            if isinstance(ref, dict) and isinstance(ref.get("Property"), str):
+                entity = ((ref.get("Expression") or {}).get("SourceRef") or {}).get("Entity")
+                if isinstance(entity, str):
+                    out.append((kind, entity, ref["Property"]))
+        for value in node.values():
+            out.extend(_field_refs(value))
+    elif isinstance(node, list):
+        for value in node:
+            out.extend(_field_refs(value))
+    return out
+
+
+def _report_checks(report: Path, model: tmdl.Model) -> list[tuple[str, str, Path, str]]:
+    """PBW026: page/visual folder = its `name`, unique page titles. PBW027: fields missing from the model."""
+    found: list[tuple[str, str, Path, str]] = []
+    pages_dir = report / "definition" / "pages"
+    titles: dict[str, str] = {}
+    fields = {t.name: {c.name for c in t.columns} | {m.name for m in t.measures} for t in model.tables}
+    for page_json in sorted(pages_dir.glob("*/page.json")):
+        try:
+            page = json.loads(page_json.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue                                   # already reported by PBW007
+        folder = page_json.parent.name
+        if page.get("name") != folder:
+            found.append((WARN, "PBW026", page_json, f"a página '{page.get('displayName', '')}' tem name "
+                          f"'{page.get('name')}', mas está na pasta '{folder}' (devem ser iguais)."))
+        title = str(page.get("displayName", "")).strip()
+        if title in titles:
+            found.append((WARN, "PBW026", page_json, f"duas páginas com o mesmo nome '{title}' "
+                                                     "(a navegação fica ambígua)."))
+        titles.setdefault(title, folder)
+        for visual_json in sorted(page_json.parent.glob("visuals/*/visual.json")):
+            try:
+                visual = json.loads(visual_json.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                continue
+            if visual.get("name") != visual_json.parent.name:
+                found.append((WARN, "PBW026", visual_json, f"visual com name '{visual.get('name')}' na pasta "
+                                                           f"'{visual_json.parent.name}' (devem ser iguais)."))
+            missing = sorted({f"{t}[{f}]" for kind, t, f in _field_refs(visual)
+                              if t not in fields or f not in fields[t]})
+            if missing:
+                vtype = (visual.get("visual") or {}).get("visualType", "visual")
+                found.append((WARN, "PBW027", visual_json, f"{vtype} na página '{title}' usa campo(s) que não "
+                                                           f"existem no modelo: {', '.join(missing)} — o visual "
+                                                           "aparece quebrado no Power BI."))
+    return found
 
 
 def validate_tree(root: Path) -> list[Issue]:

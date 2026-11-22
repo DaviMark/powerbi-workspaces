@@ -38,6 +38,9 @@
 | PBW020 | aviso | SQL ↔ TMDL fora de sincronia (tabelas e colunas) |
 | PBW023 | erro | tabela de fonte sem colunas declaradas |
 | PBW024 | info/erro | páginas ainda em protótipo (erro em review/produção) |
+| PBW025 | aviso | caminho de arquivo longo demais para o Power BI Desktop abrir (limite de 260 caracteres do Windows) — no Windows mede a pasta real; fora dele, uma pasta curta típica |
+| PBW026 | aviso | pasta de página/visual diferente do `name` no JSON; duas páginas com o mesmo nome |
+| PBW027 | aviso | visual usando tabela, coluna ou medida que não existe no modelo (aparece quebrado) |
 | SEC* | erro | segredos, `.pbix`, `.abf`, perfis locais, PBIT com dados embutidos |
 | PBW030 | info | itens aguardando em `refatorar/` |
 

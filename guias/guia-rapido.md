@@ -19,12 +19,22 @@ Projeto do Power BI (.pbip)* e *Armazenar relatórios usando o formato de metada
 
 ## 1. Prepare o repositório
 
-No GitHub, botão **Use this template** → crie um repositório **privado** da empresa e clone no VS Code.
+No GitHub, botão **Use this template** → crie um repositório **privado** da empresa e clone no VS Code
+numa **pasta curta**, como `C:\pbw`. Evite a Área de Trabalho, o OneDrive e pastas sincronizadas do
+SharePoint: o caminho fica comprido demais para o Power BI Desktop (limite de 260 caracteres do Windows)
+e a sincronização disputa os arquivos com o Git.
+
+```powershell
+git config --global core.longpaths true
+git clone https://github.com/<sua-empresa>/<seu-repositorio>.git C:\pbw
+```
+
 Depois, no terminal do VS Code (**Terminal › Novo terminal**), dentro da pasta:
 
 ```powershell
-.\pbw diagnostico        # confere o ambiente
+.\pbw diagnostico        # confere o ambiente (e se a pasta é curta o bastante)
 .\pbw instalar-hooks     # impede que dados e senhas entrem no Git
+.\pbw skill              # mostra como instalar a skill powerbi-architect (recomendado)
 ```
 
 > No macOS, Linux ou Git Bash, troque `.\pbw` por `./pbw`.

@@ -7,6 +7,11 @@
 
 **Você descreve o dashboard. A IA constrói. Você abre no Power BI.**
 
+[![governance](https://github.com/DaviMark/powerbi-workspaces/actions/workflows/ci.yml/badge.svg)](https://github.com/DaviMark/powerbi-workspaces/actions/workflows/ci.yml)
+[![Licença MIT](https://img.shields.io/badge/licença-MIT-1F2328)](LICENSE.md)
+![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-1F2328)
+![Sem dependências](https://img.shields.io/badge/dependências-nenhuma-1A7F37)
+
 [Guia visual](index.html) &nbsp;·&nbsp; [Começar](guias/guia-rapido.md) &nbsp;·&nbsp; [Exemplo pronto](dashboards/acme/financeiro/contas-a-receber/aging-de-titulos/LEIA-ME.md)
 
 </div>
@@ -59,6 +64,11 @@ Preencha `1-seu-pedido/PEDIDO.md` e diga à IA: *crie o dashboard aging-de-titul
 Você precisa de Power BI Desktop, VS Code com uma IA (GitHub Copilot, Claude Code, Cursor ou Codex),
 Python 3.11 ou superior e Git.
 
+> **Clone numa pasta curta**, como `C:\pbw`. O Power BI Desktop não abre arquivos com caminho de 260
+> caracteres ou mais, e a Área de Trabalho, o OneDrive e o SharePoint sincronizado deixam o caminho comprido.
+> Se aparecer *"o caminho especificado… é muito longo"*, abra com `pbw abrir`: ele contorna o limite.
+> [Detalhes](guias/faq.md).
+
 <br>
 
 ## O que já vem pronto
@@ -80,7 +90,9 @@ O Workspaces define **onde e quando**: pastas, etapas, aprovações. A skill
 [Power BI Architect](https://github.com/DaviMark/powerbi-architect) ensina à IA **como**, no nível de um
 especialista: modelagem, DAX e design de relatórios. Ela também mantém um mapa do repositório, com
 o qual a IA responde sobre seus dashboards gastando muito menos.
-Instale as duas: [guias/ia-no-vscode.md](guias/ia-no-vscode.md).
+Instale as duas: [guias/ia-no-vscode.md](guias/ia-no-vscode.md). O `pbw skill` mostra se ela está
+instalada e como atualizar; com ela, `pbw auditar` dá uma nota de design a cada página e `pbw previa`
+mostra as páginas no navegador, sem o Power BI.
 
 <br>
 
@@ -100,4 +112,4 @@ Instale as duas: [guias/ia-no-vscode.md](guias/ia-no-vscode.md).
 
 <br>
 
-<sub>MIT · Power BI e Microsoft Fabric são marcas da Microsoft. Projeto independente.</sub>
+<sub>[Licença MIT](LICENSE.md) · Power BI e Microsoft Fabric são marcas da Microsoft. Projeto independente.</sub>

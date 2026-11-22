@@ -10,7 +10,7 @@ Linux ou no Git Bash, `./pbw`. Onde aparece `<dashboard>`, use o nome da pasta d
 | Comando | O que faz |
 |---|---|
 | `pbw novo "<Empresa>/<Área>/<Subárea>/<Dashboard>"` | cria um dashboard, já pronto para abrir |
-| `pbw abrir <dashboard>` | abre o dashboard no Power BI Desktop |
+| `pbw abrir <dashboard>` | abre o dashboard no Power BI Desktop (se o caminho for longo demais para o Windows, abre por uma unidade curta, como `P:`) |
 | `pbw prototipo <dashboard>` | redesenha as páginas de rascunho a partir do desenho aprovado |
 | `pbw refatorar` | traz os `.pbit` da pasta `refatorar/` para `dashboards/` |
 | `pbw identidade <empresa>` | aplica a identidade visual da empresa em todos os dashboards dela |
@@ -20,9 +20,14 @@ Linux ou no Git Bash, `./pbw`. Onde aparece `<dashboard>`, use o nome da pasta d
 | `pbw documentar` | atualiza o dicionário de cada dashboard e o catálogo |
 | `pbw validar` | confere as regras, inclusive se cada dashboard abre |
 | `pbw seguranca` | procura senhas e arquivos com dados antes de enviar ao Git |
-| `pbw diagnostico` | confere o ambiente |
+| `pbw diagnostico` | confere o ambiente, inclusive se a pasta do repositório é curta o bastante |
+| `pbw skill` | mostra se a skill `powerbi-architect` está instalada, a versão e como instalar ou atualizar |
+| `pbw auditar <dashboard>` | auditoria da skill: modelo, visuais e nota de harmonia de cada página |
+| `pbw previa <dashboard>` | prévia das páginas no navegador, sem o Power BI (útil no Mac) |
 | `pbw boas-vindas` | mostra por onde começar |
 | `pbw instalar-hooks` | ativa a verificação automática a cada commit |
 
-Os nomes em inglês também funcionam (`new`, `open`, `validate`…). Todos os comandos aceitam `--help`.
+`pbw auditar` e `pbw previa` usam os scripts da skill `powerbi-architect`; sem ela, o comando explica
+como instalar. Os nomes em inglês também funcionam (`new`, `open`, `validate`…). Todos os comandos
+aceitam `--help`.
 As regras do `pbw validar` estão em [governanca.md](governanca.md).

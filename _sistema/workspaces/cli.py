@@ -9,13 +9,16 @@ import shutil
 import stat
 import subprocess
 import sys
+import tempfile
+import webbrowser
 from pathlib import Path
 
 from . import __version__
 from . import brand as brand_mod
 from . import docs as docs_mod
 from . import pbit as pbit_mod
-from . import onboarding, prototipo, scaffold, sqlsync
+from . import caminhos, onboarding, prototipo, scaffold, sqlsync
+from . import skill as skill_mod
 from . import secrets as sec_mod
 from . import validate as val_mod
 from .connectors import CONNECTORS, list_profiles, load_profile
@@ -35,7 +38,10 @@ def _dash(root: Path, arg: str | None) -> Path:
         for cand in (here, *here.parents):
             if (cand / MANIFEST).exists():
                 return long_path(cand)
-        raise SystemExit("ERRO: informe o dashboard (ex.: aging-de-titulos) ou abra o terminal dentro da pasta dele.")
+        nomes = [d.name for d in all_dashboards(root, scaffold.settings(root))]
+        lista = ("\n  Dashboards: " + ", ".join(nomes)) if nomes else ""
+        raise SystemExit("ERRO: informe o dashboard (ex.: aging-de-titulos) ou abra o terminal dentro "
+                         "da pasta dele." + lista)
     p = Path(arg)
     for cand in ([p] if p.is_absolute() else [Path.cwd() / p, root / p, scaffold.analytics_root(root) / p]):
         if (cand / MANIFEST).exists():
@@ -57,6 +63,12 @@ def _dash(root: Path, arg: str | None) -> Path:
 def cmd_new(a: argparse.Namespace, root: Path) -> int:
     target = scaffold.create_dashboard(root, a.path, a.connection, a.brand, force=a.force)
     docs_mod.catalog(root)
+    medida = caminhos.medir(root, target)
+    if medida and medida.excede:
+        warn(f"O maior caminho deste projeto chega a {medida.tamanho} caracteres"
+             + (" nesta pasta" if medida.raiz_real else " mesmo numa pasta curta")
+             + f": o Power BI Desktop não abre caminhos com {caminhos.LIMITE_WINDOWS} ou mais.")
+        print("  " + caminhos.conselho())
     print()
     info("Próximo passo — escreva o que você quer (objetivo, perguntas, regras, visuais):")
     print(f"    {rel(target / REQUEST, root)}")
@@ -72,12 +84,25 @@ def cmd_open(a: argparse.Namespace, root: Path) -> int:
         fail(f"{rel(dash, root)}/2-power-bi/ não tem .pbip. Rode `pbw diagnostico` e peça à IA para recriar o projeto.")
         return 1
     target = Path(str(files[0]).replace(LONG_PREFIX, ""))
+    medida = caminhos.medir(root, dash)
+    if os.name == "nt" and medida and medida.excede and not a.no_drive:
+        # Power BI Desktop cannot read 260+ character paths: open the same files through a short drive (subst)
+        drive = caminhos.unidade_curta(root)
+        if drive:
+            target = Path(drive + "\\") / Path(files[0].relative_to(root))
+            info(f"Caminho longo demais para o Power BI Desktop ({medida.tamanho} caracteres). Abrindo pela "
+                 f"unidade {drive}, que é um atalho para a pasta do repositório: os arquivos são os mesmos.")
+            info(f"A unidade {drive} some ao reiniciar o Windows; o `pbw abrir` cria de novo.")
+        else:
+            warn(f"Caminho longo demais para o Power BI Desktop ({medida.tamanho} caracteres) e não consegui "
+                 "criar uma unidade curta. " + caminhos.conselho())
     print(f"  {target}")
     if os.name == "nt" and not a.print_only:
         os.startfile(target)  # type: ignore[attr-defined]  # abre no Power BI Desktop
         ok("Abrindo no Power BI Desktop…")
     elif not a.print_only:
-        info("O Power BI Desktop só existe para Windows: abra este arquivo em uma máquina Windows.")
+        info("O Power BI Desktop só existe para Windows: abra este arquivo em uma máquina Windows "
+             f"(ou veja uma prévia aqui mesmo: pbw previa {dash.name}).")
     return 0
 
 
@@ -218,7 +243,17 @@ def cmd_scan(a: argparse.Namespace, root: Path) -> int:
 
 HOOK = """#!/bin/sh
 # Power BI Workspaces pre-commit — bloqueia dados, segredos e quebras de governança.
-PY=$(command -v python3 || command -v python)
+# Procura um Python 3.11+ que funcione de verdade (no Windows, "python3" pode ser só o atalho da Microsoft Store).
+PY=""
+for c in python3 python py; do
+  if command -v "$c" >/dev/null 2>&1 && "$c" -c "import sys; sys.exit(sys.version_info < (3, 11))" >/dev/null 2>&1; then
+    PY="$c"; break
+  fi
+done
+if [ -z "$PY" ]; then
+  echo "pre-commit do Power BI Workspaces: Python 3.11+ não encontrado (https://www.python.org/downloads/)." >&2
+  exit 1
+fi
 "$PY" _sistema/pbw.py seguranca --staged || exit 1
 "$PY" _sistema/pbw.py validar || exit 1
 """
@@ -273,25 +308,117 @@ def cmd_doctor(a: argparse.Namespace, root: Path) -> int:
     brands = brand_mod.list_brands(root)
     checks.append(("Identidade visual de empresa", bool(brands),
                    ", ".join(brands) or "nenhuma — crie identidade-visual/<empresa>/"))
-    skill_paths = [root / ".claude/skills/powerbi-architect/SKILL.md", root / ".github/skills/powerbi-architect/SKILL.md",
-                   root / ".agents/skills/powerbi-architect/SKILL.md"]
-    checks.append(("Skill powerbi-architect", any(p.exists() for p in skill_paths),
-                   "opcional — veja guias/ia-no-vscode.md"))
+    skills = skill_mod.instalacoes(root)
+    versions = sorted({s_.versao for s_ in skills})
+    checks.append(("Skill powerbi-architect", bool(skills),
+                   (f"versão {', '.join(versions)} · detalhes: pbw skill" if skills
+                    else "opcional — veja como instalar: pbw skill")))
     dashes = all_dashboards(root, scaffold.settings(root))
     no_pbip = [rel(d, root) for d in dashes if len(pbip_files(d)) != 1]
     checks.append(("Todo dashboard tem 1 .pbip", not no_pbip, ", ".join(no_pbip) or f"{len(dashes)} dashboard(s)"))
+    # Power BI Desktop does not read paths with 260+ characters (Windows)
+    raiz, real = caminhos.raiz_windows(root)
+    if real:
+        too_long = [d.name for d in dashes if (m := caminhos.medir(root, d)) and m.excede]
+        if too_long:
+            detail = (f"{len(too_long)} dashboard(s) passam de {caminhos.LIMITE_WINDOWS} caracteres: "
+                      f"pbw abrir contorna; ou clone em {caminhos.PASTA_CURTA}")
+        elif len(raiz) > caminhos.RAIZ_LONGA:
+            detail = f"pasta com {len(raiz)} caracteres: prefira algo curto, como {caminhos.PASTA_CURTA}"
+        else:
+            detail = f"pasta com {len(raiz)} caracteres"
+        checks.append(("Caminhos abrem no Desktop", not too_long and len(raiz) <= caminhos.RAIZ_LONGA, detail))
+        sync = caminhos.pasta_sincronizada(root)
+        checks.append(("Fora de pasta sincronizada", not sync,
+                       f"repositório dentro do {sync}: a sincronização disputa os arquivos com o Git" if sync else ""))
     if git:
         try:
-            ign = subprocess.run(["git", "check-ignore", "-q", "x.pbix"], cwd=root, capture_output=True).returncode == 0
+            ign = subprocess.run(["git", "check-ignore", "-q", "x.pbix"], cwd=caminhos.texto_windows(root),
+                                 capture_output=True).returncode == 0
         except OSError:
             ign = False
         checks.append((".gitignore bloqueia *.pbix", ign, ""))
+        if os.name == "nt":
+            try:
+                lp = subprocess.run(["git", "config", "--get", "core.longpaths"], cwd=caminhos.texto_windows(root),
+                                    capture_output=True, text=True).stdout.strip().lower() == "true"
+            except OSError:
+                lp = False
+            checks.append(("Git aceita caminhos longos", lp, "" if lp else "rode: git config --global core.longpaths true"))
     for label, good, detail in checks:
         mark = paint("✔", "green") if good else paint("•", "yellow")
         print(f"  {mark} {label:<30} {paint(detail, 'dim')}")
     print()
     info("Power BI Desktop: Arquivo › Opções › Recursos em versão prévia › ative 'Salvar como PBIP' e "
          "'Formato PBIR' (em versões antigas). Para abrir um dashboard: pbw abrir <nome>")
+    return 0
+
+
+def cmd_skill(a: argparse.Namespace, root: Path) -> int:
+    found = skill_mod.instalacoes(root)
+    if not found:
+        info("A skill powerbi-architect não está instalada. Ela ensina à IA o \"como\" (modelagem, DAX, design);")
+        info("este repositório define o \"onde e quando\". Funciona sem ela, mas fica melhor com ela.")
+        print()
+        for line in skill_mod.como_instalar():
+            print("  " + line)
+        return 0
+    for inst in found:
+        where = rel(inst.pasta, root) if inst.escopo == "projeto" else str(inst.pasta)
+        ok(f"{inst.escopo:<8} versão {inst.versao:<8} {where}")
+    if len({i.versao for i in found}) > 1:
+        warn("Há versões diferentes instaladas: atualize todas para a mesma (instalador com --update / -Update).")
+    graph = skill_mod.grafo(root)
+    if graph:
+        ok(f"grafo de conhecimento: {rel(graph, root)}")
+    else:
+        info("Sem grafo de conhecimento (powerbi-graph/). Ele é criado pelo instalador da skill.")
+    print()
+    info("Com a skill: pbw auditar <dashboard> (nota de harmonia) · pbw previa <dashboard> (prévia no navegador)")
+    return 0
+
+
+def _skill_script(root: Path, name: str) -> Path | None:
+    script = skill_mod.script(root, name)
+    if script is None:
+        fail(f"Este comando usa a skill powerbi-architect ({name}), que não está instalada.")
+        for line in skill_mod.como_instalar():
+            print("  " + line)
+    return script
+
+
+def cmd_audit(a: argparse.Namespace, root: Path) -> int:
+    dash = _dash(root, a.dashboard)
+    script = _skill_script(root, "audit_pbip.py")
+    if script is None:
+        return 1
+    info(f"Auditoria da skill powerbi-architect em {rel(dash, root)} (complementa o pbw validar)")
+    args = [sys.executable, str(script), str(dash / "2-power-bi")]
+    if a.min_harmony is not None:
+        args += ["--min-harmony", str(a.min_harmony)]
+    sys.stdout.flush()
+    return subprocess.run(args, check=False).returncode
+
+
+def cmd_preview(a: argparse.Namespace, root: Path) -> int:
+    dash = _dash(root, a.dashboard)
+    script = _skill_script(root, "preview_pbir.py")
+    if script is None:
+        return 1
+    reports = sorted((dash / "2-power-bi").glob("*.Report"))
+    if not reports:
+        fail(f"{rel(dash, root)}/2-power-bi/ não tem relatório (*.Report). Rode `pbw diagnostico`.")
+        return 1
+    # outside the repository: a preview is a throwaway file, never part of the dashboard
+    out = Path(tempfile.gettempdir()) / "pbw-previa" / f"{dash.name}.html"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    sys.stdout.flush()
+    code = subprocess.run([sys.executable, str(script), str(reports[0]), "--out", str(out)], check=False).returncode
+    if code != 0:
+        return code
+    ok(f"Prévia (valores de exemplo, sem dados): {out}")
+    if not a.print_only:
+        webbrowser.open(out.as_uri())
     return 0
 
 
@@ -314,6 +441,9 @@ COMMANDS = [
     ("seguranca", ["scan"], "procura senhas e arquivos com dados"),
     ("instalar-hooks", ["install-hooks"], "instala o pre-commit (segurança + validação)"),
     ("diagnostico", ["doctor"], "verifica o ambiente e se todo dashboard abre"),
+    ("skill", [], "mostra se a skill powerbi-architect está instalada e como instalar/atualizar"),
+    ("auditar", ["audit"], "auditoria de design e modelo da skill powerbi-architect (nota de harmonia)"),
+    ("previa", ["preview"], "prévia das páginas no navegador, sem Power BI (usa a skill powerbi-architect)"),
     ("boas-vindas", ["welcome"], "explica por onde começar (e diz à IA se deve oferecer a explicação)"),
 ]
 
@@ -335,6 +465,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     s["abrir"].add_argument("dashboard", nargs="?", help=dash_help)
     s["abrir"].add_argument("--so-caminho", dest="print_only", action="store_true", help="só mostra o caminho")
+    s["abrir"].add_argument("--sem-atalho", dest="no_drive", action="store_true",
+                            help="não usar a unidade curta (subst) quando o caminho for longo demais")
     s["abrir"].set_defaults(fn=cmd_open)
 
     s["prototipo"].add_argument("dashboard", nargs="?", help=dash_help)
@@ -378,6 +510,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     s["instalar-hooks"].set_defaults(fn=cmd_install_hooks)
     s["diagnostico"].set_defaults(fn=cmd_doctor)
+    s["skill"].set_defaults(fn=cmd_skill)
+    s["auditar"].add_argument("dashboard", nargs="?", help=dash_help)
+    s["auditar"].add_argument("--min-harmony", "--harmonia-minima", type=int, metavar="N",
+                              help="falha se alguma página ficar abaixo de N (a skill pede 90)")
+    s["auditar"].set_defaults(fn=cmd_audit)
+    s["previa"].add_argument("dashboard", nargs="?", help=dash_help)
+    s["previa"].add_argument("--so-gerar", dest="print_only", action="store_true", help="não abrir o navegador")
+    s["previa"].set_defaults(fn=cmd_preview)
     s["boas-vindas"].add_argument("--verificar", action="store_true", help="só diz PERGUNTAR ou NAO-PERGUNTAR (para a IA)")
     s["boas-vindas"].add_argument("--hook", action="store_true", help=argparse.SUPPRESS)
     s["boas-vindas"].set_defaults(fn=cmd_welcome)

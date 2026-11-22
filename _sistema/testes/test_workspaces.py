@@ -18,7 +18,8 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "_sistema"))
 
-from workspaces import cli, pbit, prototipo, secrets, tmdl  # noqa: E402
+from workspaces import caminhos, cli, layout, pbit, prototipo, secrets, tmdl  # noqa: E402
+from workspaces import skill as skill_mod  # noqa: E402
 from workspaces.sqlsync import select_aliases  # noqa: E402
 from workspaces.util import m_string, pascal, slugify  # noqa: E402
 
@@ -447,6 +448,195 @@ class TestPbitRead(unittest.TestCase):
             self.assertEqual(len(ex.pages), 1)
             self.assertIn("10.0.0.15", ex.tables[0]["partitions"][0]["expression"])
             self.assertIn("Clientes.Nome", ex.pages[0]["visuals"][0]["fields"])
+
+
+# a typical synced folder (Desktop + SharePoint library): ~90 characters before the repository even starts
+USER_ROOT = r"C:\Users\analista.financeiro\Desktop\Documentos - Minha Empresa\_repositorios\powerbi-workspaces"
+
+
+class TestLongPaths(Sandbox):
+    """Power BI Desktop cannot read 260+ character paths (the reported "caminho muito longo" error)."""
+
+    def test_measure_includes_the_next_visual_desktop_creates(self) -> None:
+        self.run_cli("novo", "acme/financeiro/controladoria/dre-gerencial")
+        dash = self.tmp / "dashboards/acme/financeiro/controladoria/dre-gerencial"
+        longa = caminhos.medir(self.tmp, dash, USER_ROOT)
+        self.assertTrue(longa.excede, longa)                       # the analyst's folder: does not open
+        self.assertTrue(longa.caminho.endswith("visual.json"))
+        self.assertIn(r"\2-power-bi\DreGerencial.Report\definition\pages", longa.caminho)
+        curta = caminhos.medir(self.tmp, dash, r"C:\pbw")
+        self.assertFalse(curta.excede, curta)                      # same dashboard from C:\pbw: opens
+        self.assertEqual(longa.tamanho - curta.tamanho, len(USER_ROOT) - len(r"C:\pbw"))
+        self.assertGreater(caminhos.folga(self.tmp, dash), len(r"C:\pbw"))
+
+    def test_long_names_warn_on_new_and_validate(self) -> None:
+        spec = ("Empresa de Transportes Rodoviarios Integrados/Planejamento Financeiro Corporativo/"
+                "Controladoria e Resultados Gerenciais/Demonstrativo de Resultado do Exercicio Gerencial")
+        code, out = self.run_cli("novo", spec)
+        self.assertEqual(code, 0, out)
+        self.assertIn("pbw abrir", out)
+        self.assertIn(caminhos.PASTA_CURTA, out)
+        code, out = self.run_cli("validar", "demonstrativo-de-resultado-do-exercicio-gerencial")
+        self.assertIn("PBW025", out)
+        self.assertEqual(code, 0, out)                             # a warning, never a blocked commit
+
+    def test_short_names_do_not_warn(self) -> None:
+        self.run_cli("novo", "Acme/Comercial/Vendas/Painel")
+        code, out = self.run_cli("validar", "painel")
+        self.assertNotIn("PBW025", out)
+
+    def test_subst_parsing_and_drive_choice(self) -> None:
+        saida = "P:\\: => C:\\Users\\x\\repo\r\nW:\\: => \\\\?\\C:\\outro\r\n"
+        self.assertEqual(caminhos.parse_subst(saida), {"P": r"C:\Users\x\repo", "W": r"C:\outro"})
+        mapped = caminhos.parse_subst(saida)
+        if __import__("os").name == "nt":                           # paths compare case-insensitively on Windows
+            self.assertEqual(caminhos.escolher_letra(mapped, r"c:\users\x\repo", {"C"}), ("P", True))
+        self.assertEqual(caminhos.escolher_letra(mapped, r"C:\Users\x\repo", {"C"}), ("P", True))
+        self.assertEqual(caminhos.escolher_letra(mapped, r"C:\novo", {"C", "Q"}), ("R", False))
+        self.assertEqual(caminhos.escolher_letra({}, r"C:\novo", set(caminhos.LETRAS)), (None, False))
+
+    def test_open_prints_the_project_path(self) -> None:
+        self.run_cli("novo", "Acme/Comercial/Vendas/Painel")
+        code, out = self.run_cli("abrir", "painel", "--so-caminho")
+        self.assertEqual(code, 0, out)
+        self.assertIn("Painel.pbip", out)
+
+    def test_open_without_name_lists_dashboards(self) -> None:
+        self.run_cli("novo", "Acme/Comercial/Vendas/Painel")
+        code, out = self.run_cli("abrir", "--so-caminho")
+        self.assertEqual(code, 1)
+        self.assertIn("Dashboards: painel", out)
+
+    @unittest.skipUnless(sys.platform == "win32", "subst só existe no Windows")
+    def test_short_drive_points_to_the_same_files(self) -> None:
+        drive = caminhos.unidade_curta(self.tmp)
+        self.assertIsNotNone(drive, "subst não criou a unidade")
+        try:
+            self.assertTrue((Path(drive + "\\") / "workspaces.toml").exists())
+            self.assertEqual(caminhos.unidade_curta(self.tmp), drive)        # reused, not a second drive
+        finally:
+            caminhos.remover_unidade(drive)
+
+
+class TestReportChecks(Sandbox):
+    def _page(self, dash: Path, title: str) -> Path:
+        for pj in dash.glob("2-power-bi/*.Report/definition/pages/*/page.json"):
+            if json.loads(pj.read_text(encoding="utf-8"))["displayName"] == title:
+                return pj
+        raise AssertionError(title)
+
+    def test_broken_field_and_mismatched_names(self) -> None:
+        self.run_cli("novo", "Acme/Comercial/Vendas/Painel")
+        dash = self.tmp / "dashboards/acme/comercial/vendas/painel"
+        code, out = self.run_cli("validar", "painel")
+        self.assertNotIn("PBW026", out)
+        self.assertNotIn("PBW027", out)
+        docs = self._page(dash, "Documentação")
+        table = next(v for v in docs.parent.glob("visuals/*/visual.json") if '"Property": "Medida"' in v.read_text(encoding="utf-8"))
+        table.write_text(table.read_text(encoding="utf-8").replace('"Property": "Medida"', '"Property": "Medida Antiga"'),
+                         encoding="utf-8")
+        data = json.loads(table.read_text(encoding="utf-8"))
+        data["name"] = "outro"
+        table.write_text(json.dumps(data), encoding="utf-8")
+        overview = self._page(dash, "Visão Geral")
+        page = json.loads(overview.read_text(encoding="utf-8"))
+        page["displayName"] = "Documentação"
+        overview.write_text(json.dumps(page), encoding="utf-8")
+        code, out = self.run_cli("validar", "painel")
+        self.assertIn("PBW027", out)
+        self.assertIn("_Documentacao[Medida Antiga]", out)
+        self.assertIn("visual com name 'outro'", out)
+        self.assertIn("duas páginas com o mesmo nome", out)
+
+
+class TestRepositoryHygiene(unittest.TestCase):
+    def _ignored(self, path: str) -> bool:
+        import subprocess
+        return subprocess.run(["git", "check-ignore", "-q", "--no-index", path], cwd=REPO).returncode == 0
+
+    @unittest.skipUnless(shutil.which("git") and (REPO / ".git").exists(), "precisa do Git")
+    def test_gitignore_follows_the_layout(self) -> None:
+        base = f"dashboards/acme/financeiro/contas-a-receber/aging-de-titulos/{layout.LEGACY}"
+        self.assertTrue(self._ignored(f"{base}/original.pbit"))        # legacy may hold hosts in M
+        self.assertTrue(self._ignored(f"{base}/original.pbix"))
+        self.assertFalse(self._ignored(f"{base}/extracao/summary.md"))  # the audit trail is versioned
+        self.assertFalse(self._ignored("powerbi-graph/GRAPH_REPORT.md"))  # the skill decides (its own .gitignore)
+
+    def test_gitattributes_and_editor_paths_exist_in_the_layout(self) -> None:
+        attrs = (REPO / ".gitattributes").read_text(encoding="utf-8")
+        for stale in ("analytics/", "docs/dicionario", "legacy/extraction"):
+            self.assertNotIn(stale, attrs)
+        self.assertIn(f"**/{layout.WORK}/dicionario.md", attrs)
+        self.assertNotIn("documentos/legado", (REPO / ".vscode/settings.json").read_text(encoding="utf-8"))
+
+    def test_catalog_does_not_change_by_itself(self) -> None:
+        # CI regenerates the catalog and fails on any diff: it must not carry today's date
+        import datetime as dt
+        text = (REPO / "dashboards/CATALOGO.md").read_text(encoding="utf-8")
+        self.assertNotIn(dt.date.today().isoformat(), text)
+        self.assertNotIn("Atualizado em", text)
+
+    def test_license_renders_as_markdown(self) -> None:
+        text = (REPO / "LICENSE.md").read_text(encoding="utf-8")
+        self.assertTrue(text.startswith("# MIT License\n"))
+        self.assertIn("THE SOFTWARE IS PROVIDED \"AS IS\"", text)
+        self.assertFalse((REPO / "LICENSE").exists())
+
+    @unittest.skipUnless(shutil.which("sh") and sys.platform != "win32", "precisa de sh (fora do Windows)")
+    def test_pre_commit_hook_is_valid_shell(self) -> None:
+        import subprocess
+        with tempfile.TemporaryDirectory() as d:
+            hook = Path(d) / "pre-commit"
+            hook.write_text(cli.HOOK, encoding="utf-8", newline="\n")
+            self.assertEqual(subprocess.run(["sh", "-n", str(hook)]).returncode, 0)
+        self.assertIn('-c "import sys; sys.exit(sys.version_info < (3, 11))"', cli.HOOK)
+
+
+class TestSkill(Sandbox):
+    def _install(self, base: Path, version: str) -> Path:
+        pasta = base / skill_mod.NOME
+        (pasta / "scripts").mkdir(parents=True)
+        (pasta / "SKILL.md").write_text(f"---\nname: powerbi-architect\nmetadata:\n  version: \"{version}\"\n---\n",
+                                        encoding="utf-8")
+        (pasta / "scripts" / "audit_pbip.py").write_text(       # leaves a mark next to the folder it audited
+            "import sys\nfrom pathlib import Path\nPath(sys.argv[1] + '.auditado').write_text('ok')\n",
+            encoding="utf-8")
+        return pasta
+
+    def test_finds_project_and_global_installs(self) -> None:
+        home = self.tmp / "home"
+        self._install(self.tmp / ".claude/skills", "1.2.0")
+        self._install(home / ".codex/skills", "1.1.0")
+        found = skill_mod.instalacoes(self.tmp, home)
+        self.assertEqual([(i.escopo, i.versao) for i in found], [("projeto", "1.2.0"), ("global", "1.1.0")])
+        self.assertEqual(skill_mod.script(self.tmp, "audit_pbip.py", home).parent.parent, found[0].pasta)
+        self.assertIsNone(skill_mod.script(self.tmp, "preview_pbir.py", home))
+
+    def test_commands_without_the_skill_explain_how_to_install(self) -> None:
+        import os
+        old = os.environ.get("HOME"), os.environ.get("USERPROFILE")
+        os.environ["HOME"] = os.environ["USERPROFILE"] = str(self.tmp / "sem-skill")
+        try:
+            self.run_cli("novo", "Acme/Comercial/Vendas/Painel")
+            code, out = self.run_cli("skill")
+            self.assertEqual(code, 0)
+            self.assertIn("/plugin install powerbi-architect", out)
+            code, out = self.run_cli("auditar", "painel")
+            self.assertEqual(code, 1)
+            self.assertIn("install.ps1", out)
+        finally:
+            for key, value in zip(("HOME", "USERPROFILE"), old):
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
+
+    def test_audit_runs_the_skill_script(self) -> None:
+        self._install(self.tmp / ".claude/skills", "1.2.0")
+        self.run_cli("novo", "Acme/Comercial/Vendas/Painel")
+        code, out = self.run_cli("auditar", "painel")
+        self.assertEqual(code, 0, out)
+        self.assertTrue((self.tmp / "dashboards/acme/comercial/vendas/painel/2-power-bi.auditado").exists())
 
 
 if __name__ == "__main__":

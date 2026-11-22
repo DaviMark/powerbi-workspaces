@@ -15,3 +15,14 @@ body:
   - type: input
     id: env
     attributes: { label: Ambiente, placeholder: "Windows 11 · Python 3.12 · Power BI Desktop 2.14x (mês/ano) · Copilot/Claude/Cursor" }
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Saída do `pbw diagnostico`
+      description: Rode `pbw diagnostico` na pasta do repositório e cole aqui. Revise antes de enviar (caminhos podem ter seu nome de usuário).
+      render: text
+  - type: textarea
+    id: validate
+    attributes:
+      label: Saída do `pbw validar <dashboard>` (se o problema for em um dashboard)
+      render: text

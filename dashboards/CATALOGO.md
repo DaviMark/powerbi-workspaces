@@ -2,7 +2,7 @@
 
 # Catálogo de dashboards
 
-Atualizado em 2026-11-21 · **1** dashboard(s)
+**1** dashboard(s)
 
 ## Acme › Financeiro › Contas a Receber
 

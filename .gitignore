@@ -21,8 +21,8 @@ conexoes/*.local.toml
 
 # Legado: o .pbit original pode conter M com hosts e tabelas "Inserir dados".
 # Para versionar, mude security.commit_legacy_pbit e remova a linha abaixo.
-dashboards/**/documentos/legado/original.pbit
-dashboards/**/documentos/legado/original.pbix
+dashboards/**/trabalho-da-ia/legado/original.pbit
+dashboards/**/trabalho-da-ia/legado/original.pbix
 
 # Pasta de refatoração: arquivos ficam só até `pbw refatorar` movê-los
 refatorar/**
@@ -36,8 +36,8 @@ refatorar/**
 **/visuais-customizados/*/dist/*.pbiviz.tmp
 **/visuais-customizados/*/webpack.statistics.*.html
 
-# Grafo de conhecimento gerado pela skill powerbi-architect (regerado por hooks)
-powerbi-graph/
+# Grafo de conhecimento da skill powerbi-architect (powerbi-graph/): a própria skill decide.
+# Ela cria powerbi-graph/.gitignore e o grafo fica fora do Git; com `--commit-graph` ele é versionado.
 
 # Python / SO / editores
 __pycache__/
