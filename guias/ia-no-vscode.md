@@ -30,6 +30,15 @@ o grafo de conhecimento em `powerbi-graph/` (ignorado pelo Git):
 
 O instalador também adiciona uma seção ao `AGENTS.md` para a IA consultar o grafo antes de abrir os arquivos.
 E cria hooks que mantêm o grafo atualizado. Para só copiar a skill, use `--no-graph` / `-NoGraph`.
+Quer versionar o grafo para o time inteiro? Instale com `--commit-graph`: o repositório deixa essa
+escolha para a skill.
+
+Para conferir a instalação, a versão de cada cópia e como atualizar: `pbw skill`. Com a skill instalada,
+você ganha dois comandos:
+
+- `pbw auditar <dashboard>`: auditoria do modelo e dos visuais, com nota de harmonia por página
+  (a skill pede 90 ou mais para entregar);
+- `pbw previa <dashboard>`: prévia das páginas no navegador, sem o Power BI Desktop.
 
 ## (Opcional) Power BI Modeling MCP
 

@@ -125,7 +125,7 @@ nothing when the terminal is inside the dashboard folder. English names still wo
 |---|---|
 | `pbw novo "<Empresa>/<Área>/<Subárea>/<Dashboard>" [-c perfil]` | create a dashboard folder with an openable PBIP (prototype page + Documentação) |
 | `pbw prototipo <dash>` | (re)draw prototype pages from `trabalho-da-ia/desenho.md › 3. Páginas` |
-| `pbw abrir <dash>` | open the `.pbip` in Power BI Desktop |
+| `pbw abrir <dash>` | open the `.pbip` in Power BI Desktop (through a short `subst` drive when the path is too long for Windows) |
 | `pbw refatorar` | move every `.pbit` in `refatorar/` into `dashboards/` and extract it |
 | `pbw extrair <arquivo.pbit>` | read a template's model/report as Markdown + JSON (no Power BI needed) |
 | `pbw conexoes [--tipos]` | list connection profiles / supported source types |
@@ -135,7 +135,10 @@ nothing when the terminal is inside the dashboard folder. English names still wo
 | `pbw documentar [<dash>]` | regenerate `trabalho-da-ia/dicionario.md` and `dashboards/CATALOGO.md` |
 | `pbw validar [<dash>] [--strict]` | governance checks, including "the PBIP opens" (must be 0 errors) |
 | `pbw seguranca` | secret / data‑file scanner |
-| `pbw diagnostico` | environment check + every dashboard has one `.pbip` |
+| `pbw diagnostico` | environment check + every dashboard has one `.pbip` + the repository folder is short enough |
+| `pbw skill` | is the `powerbi-architect` skill installed, which version, how to install/update (never installs) |
+| `pbw auditar [<dash>]` | run the skill's `audit_pbip.py` (findings + harmony score per page) |
+| `pbw previa [<dash>] [--so-gerar]` | run the skill's `preview_pbir.py` (HTML preview of the pages, no Power BI needed) |
 | `pbw boas-vindas [--verificar]` | where to start; `--verificar` says whether to offer the tour (`PERGUNTAR`) |
 
 ## 3. Read order (before touching anything)
@@ -218,7 +221,9 @@ page. Follow the PBIR rules in §6.
 
 **Phase 5 · Custom visual (only if justified).** See §5.6.
 
-**Phase 6 · Verify → Gate 2.** `pbw validar <dash>` → 0 errors, fix warnings or justify them. Fill
+**Phase 6 · Verify → Gate 2.** `pbw validar <dash>` → 0 errors, fix warnings or justify them. If the
+skill is installed, also run `pbw auditar <dash>`: fix every blocker and report the harmony score of each
+page (the skill asks for ≥ 90). Fill
 `trabalho-da-ia/conferencia.md` with control numbers and DAX checks. Ask the analyst to `pbw abrir`, refresh
 and compare the numbers (**Gate 2**). If the MCP is connected, run the DAX checks yourself and report.
 
@@ -337,6 +342,13 @@ measures use `"Measure"`, columns `"Column"`; `queryRef` = `Table.Field`. Keep
 `pages.json › pageOrder` in sync. Validate after editing (`pbw validar <dash>`): a broken JSON means the
 analyst cannot open the dashboard.
 
+**Path length (Windows).** Power BI Desktop cannot read a file whose full path has 260 characters or
+more, and PBIR is deep (`…/2-power-bi/<Nome>.Report/definition/pages/<id>/visuals/<id>/visual.json`).
+Keep page/visual `name`s at 20 hex characters (never longer), keep slugs and the PBIP name short, and treat
+`pbw validar` rule PBW025 as a real problem. If the analyst sees *"O caminho especificado, o nome do arquivo
+ou ambos são muito longos"*, tell them to open with `pbw abrir <dash>` (it maps a short drive such as `P:`
+to the repository) or to move the repository to a short folder such as `C:\pbw` (`guias/faq.md`).
+
 Never edit: `.pbi/` folders, generated
 `theme/*.json`, `trabalho-da-ia/dicionario.md`, `dashboards/CATALOGO.md`, `expressions.tmdl` (use `pbw conectar`).
 
@@ -355,7 +367,23 @@ Never edit: `.pbi/` folders, generated
 - [ ] `LEIA-ME.md`, `trabalho-da-ia/historico.md`, `trabalho-da-ia/ficha.toml` updated; `pbw documentar` run
 - [ ] Analyst exported `3-entrega/<Nome>.pbit`
 
-## 8. How to talk to the analyst
+## 8. Working with the `powerbi-architect` skill
+
+The skill is optional and each person installs it (`pbw skill` shows status and how). Never install or
+update it yourself unless the analyst asks. When it is present:
+
+- **Who wins.** This file decides *where and when* (folders, CLI, gates, naming, the app shell in
+  `guias/padrao-visual.md`); the skill decides *how* (modeling, DAX, PBIR/TMDL, design judgement). Where they
+  differ, this file wins. In particular: tables are `Fato <Assunto>` / `Dim <Entidade>` / `Calendario`
+  (not the skill's standalone `ft_` / `dm_` / `dm_calendario`), dashboards are created with `pbw novo`
+  (not the skill's `new_project.py`), and the documentation page is the one from `workspaces.toml`.
+- **Graph before files.** If `powerbi-graph/GRAPH_REPORT.md` exists, read it and `powerbi-graph/wiki/<model>.md`
+  before opening TMDL/PBIR files, and run the skill's `pbi_graph.py impact` before renaming or removing a
+  measure, column or table.
+- **Extra checks.** `pbw auditar <dash>` (Phase 6) and `pbw previa <dash>` (look at every page before
+  asking for Gate 1 or Gate 2) wrap the skill's scripts; `pbw validar` stays the gate that must be green.
+
+## 9. How to talk to the analyst
 
 Be concise. Show decisions, not process. At gates, present a short summary (tables + grain, metrics,
 pages) and say exactly what to do next ("abra com `pbw abrir aging-de-titulos` e confira a página

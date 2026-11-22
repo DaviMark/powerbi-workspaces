@@ -58,6 +58,8 @@ Quase sempre a IA roda. Os que o analista pode querer usar (no PowerShell, com `
 | `pbw abrir <dashboard>` | abre o dashboard no Power BI Desktop |
 | `pbw novo "Empresa/Área/Subárea/Dashboard"` | cria um dashboard pelo terminal |
 | `pbw validar` | confere se está tudo certo |
+| `pbw previa <dashboard>` | mostra as páginas no navegador, sem o Power BI (precisa da skill) |
+| `pbw diagnostico` | confere o ambiente, inclusive se a pasta do repositório é curta o bastante |
 | `pbw boas-vindas` | mostra por onde começar |
 
 Lista completa: `guias/comandos.md`.
@@ -65,9 +67,12 @@ Lista completa: `guias/comandos.md`.
 ## 7. A skill Power BI Architect
 
 O repositório diz onde e quando; a skill ensina a IA a fazer no nível de um especialista e mantém um
-mapa dos dashboards para responder mais rápido. Se não estiver instalada (`.claude/skills/`,
-`.github/skills/` ou `.agents/skills/` sem `powerbi-architect`), explique como instalar:
-`guias/ia-no-vscode.md`.
+mapa dos dashboards para responder mais rápido. Rode `pbw skill`: ele diz se ela está instalada, a
+versão e como instalar (detalhes em `guias/ia-no-vscode.md`). Não instale sem o analista pedir.
+
+Se o repositório estiver numa pasta comprida (o `pbw diagnostico` avisa), conte que o Power BI Desktop
+não abre caminhos com 260 caracteres ou mais e que o `pbw abrir` contorna isso; o ideal é uma pasta
+curta, como `C:\pbw`.
 
 ## 8. Próximo passo
 

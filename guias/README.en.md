@@ -42,7 +42,8 @@ in the right place, documented, and with no data or passwords in Git** — with 
 ## Quick start
 
 ```powershell
-# "Use this template" → private repo for your company, clone it, then in the VS Code terminal:
+# "Use this template" → private repo for your company, clone it into a SHORT folder (e.g. C:\pbw),
+# then in the VS Code terminal:
 .\pbw diagnostico
 .\pbw instalar-hooks
 .\pbw novo "My Company/Finance/Receivables/Aging"
@@ -59,4 +60,10 @@ Power BI Desktop › **File › Export › Power BI template** › save as `<Nam
 Human-facing docs are in Portuguese; AI-facing files are in English. Set `[project] language` in
 `workspaces.toml` to have the AI write documentation in your language.
 
-Pairs with the **[Power BI Architect](https://github.com/DaviMark/powerbi-architect)** skill. MIT licensed.
+**Windows path limit.** Power BI Desktop cannot read files whose full path has 260+ characters, and
+PBIR folders are deep. Clone into a short folder; if Desktop says the path is too long, `pbw abrir` opens
+the project through a short virtual drive (`subst`) pointing at the same files.
+
+Pairs with the **[Power BI Architect](https://github.com/DaviMark/powerbi-architect)** skill
+(`pbw skill` shows how to install it; `pbw auditar` and `pbw previa` use its scripts).
+[MIT licensed](../LICENSE.md).
